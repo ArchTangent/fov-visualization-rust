@@ -9,6 +9,8 @@ Generates FOV data that can be saved to file for easy reloading.
 ### General
 
 - Geometry objects: 2D lines, rays, rects, intersections
+- Make use of _SIMD_ to maximize performance
+  - Compare vs scalar
 
 ### Simple FOV
 
