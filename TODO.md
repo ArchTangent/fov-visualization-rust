@@ -1,6 +1,30 @@
 # FOV Visualization - Rust (2D) To-Do List
 
-Use two separate binaries: `FOV Generator` and `FOV Viewer`.
+## Command Line (CLI)
+
+Usage:
+```text
+fov2d.exe <SUBCOMMAND> <TYPE> <RADIUS> [OPTIONS]
+
+SUBCOMMAND:
+  build
+    TYPE:
+      simple
+      standard
+    RADIUS:
+      32, 64, or 128
+    OPTIONS:
+      --qbasic -q: use Q-value equal to radius. By default, Q-value is 2x radius.
+
+  view
+    TYPE:
+      simple
+      standard
+    RADIUS:
+      32, 64, or 128
+    OPTIONS:
+      --qbasic -q: use Q-value equal to radius. By default, Q-value is 2x radius.
+```  
 
 ## FOV Generator
 
@@ -19,21 +43,36 @@ Quantized bits for the following FOV radii:
 - 63:  Q64, Q128
 - 127: Q128, Q256
 
-- `FovData`: holds FovTiles
-- `FovTile`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`
+- `FovData`: holds FovNodes
+- `FovNode`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`
 - `FovMap`:  holds MapTiles in a representation of the FOV-related aspects of a real game map
 - `MapTile`: holds obstructions that may be present in a tile
 - Benchmarks for various levels of randomly-placed obstructions
 
-### Exploded FOV
+### Standard FOV
 
 Quantized bits for the following FOV radii:
 - 31:  Q32, Q64
 - 63:  Q64, Q128
 - 127: Q128, Q256
 
-- `FovData`: holds FovTiles
-- `FovTile`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`
+- `FovData`: holds FovNodes
+- `FovNode`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`
+- `FovMap`:  holds MapTiles in a representation of the FOV-related aspects of a real game map
+- `MapTile`: holds obstructions that may be present in a tile
+- Benchmarks for various levels of randomly-placed obstructions
+
+### Exploded FOV
+
+_Note: this requires a different format for FOV Nodes and the TileMap!_
+
+Quantized bits for the following FOV radii:
+- 31:  Q32, Q64
+- 63:  Q64, Q128
+- 127: Q128, Q256
+
+- `FovData`: holds FovNodes
+- `FovNode`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`
 - `FovMap`:  holds MapTiles in a representation of the FOV-related aspects of a real game map
 - `MapTile`: holds obstructions that may be present in a tile
 - Benchmarks for various levels of randomly-placed obstructions
