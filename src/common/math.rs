@@ -1,82 +1,83 @@
 //! Math functionality for FOV Visualization - Rust (2D)
 
-/// 3D point.
+/// 2D integer deltas.
+#[derive(Debug, Clone, Copy)]
+pub struct Delta {
+    pub dx: i32,
+    pub dy: i32,
+}
+
+impl Delta {
+    pub fn new(dx: i32, dy: i32) -> Self {
+        Self { dx, dy }
+    }
+}
+ 
+/// 2D point.
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
-    pub z: f64,
 }
 
 impl Point {
     /// Creates a new `Point` instance.
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
-        Self { x, y, z }
+    pub fn new(x: f64, y: f64) -> Self {
+        Self { x, y }
     }
     /// Creates a new `Point` displaced by `Vector` `v`.
     pub fn shifted_by(&self, v: Vector) -> Self {
         Point {
             x: self.x + v.x,
             y: self.y + v.y,
-            z: self.z + v.z,
         }
     }
     /// Displaced current `Point` by `Vector` `v`, _in-place_.
     pub fn shift_by(&mut self, v: Vector) {
         self.x += v.x;
         self.y += v.y;
-        self.z += v.z;
     }
 }
 
-/// 3D line used for FOV, LOS, and intersections.
+/// 2D line used for FOV, LOS, and intersections.
 #[derive(Debug, Clone)]
 pub struct Line {
     pub x1: f64,
     pub y1: f64,
-    pub z1: f64,
     pub x2: f64,
     pub y2: f64,
-    pub z2: f64,
 }
 
 impl Line {
     /// Creates a new line.
-    pub fn new(x1: f64, y1: f64, z1: f64, x2: f64, y2: f64, z2: f64) -> Self {
+    pub fn new(x1: f64, y1: f64, x2: f64, y2: f64) -> Self {
         Self {
             x1,
             y1,
-            z1,
             x2,
             y2,
-            z2,
         }
     }
     /// Creates a new line of specified `length` from given `ray`.
     pub fn from_ray(ray: Ray, length: f64) -> Self {
-        let v = Vector::normalized(ray.r0.x, ray.r0.y, ray.r0.z);
+        let v = Vector::normalized(ray.r0.x, ray.r0.y);
         let x1 = ray.r0.x;
         let y1 = ray.r0.y;
-        let z1 = ray.r0.z;
         let x2 = x1 + v.x * length;
         let y2 = y1 + v.y * length;
-        let z2 = z1 + v.z * length;
 
         Self {
             x1,
             y1,
-            z1,
             x2,
             y2,
-            z2,
         }
     }
     pub fn len(&self) -> f64 {
         let dx = (self.x1 - self.x2).abs();
         let dy = (self.y1 - self.y2).abs();
-        let dz = (self.z1 - self.z2).abs();
 
-        return (dx * dx + dy * dy + dz * dz).sqrt();
+        return (dx * dx + dy * dy).sqrt();
     }
 }
 
@@ -89,17 +90,17 @@ pub struct Ray {
 
 impl Ray {
     /// Creates a new ray.
-    pub fn new(x0: f64, y0: f64, z0: f64, vx: f64, vy: f64, vz: f64) -> Self {
+    pub fn new(x0: f64, y0: f64, vx: f64, vy: f64) -> Self {
         Self {
-            r0: Point::new(x0, y0, z0),
-            rv: Vector::new(vx, vy, vz),
+            r0: Point::new(x0, y0),
+            rv: Vector::new(vx, vy),
         }
     }
     /// Creates a new ray with normalized vector..
-    pub fn normalized(x: f64, y: f64, z: f64) -> Self {
-        let v = Vector::normalized(x, y, z);
+    pub fn normalized(x: f64, y: f64) -> Self {
+        let v = Vector::normalized(x, y);
         Self {
-            r0: Point { x, y, z },
+            r0: Point { x, y },
             rv: v,
         }
     }
@@ -109,28 +110,27 @@ impl Ray {
     }
 }
 
-/// 3D Vector.
+/// 2D Vector.
 #[derive(Debug, Clone, Copy)]
 pub struct Vector {
     pub x: f64,
     pub y: f64,
-    pub z: f64,
 }
 
 impl Vector {
     /// Creates a new vector.
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
-        Self { x, y, z }
+    pub fn new(x: f64, y: f64) -> Self {
+        Self { x, y }
     }
     /// Creates a new normalized vector where unit vector `u = v/|v|`.
-    pub fn normalized(x: f64, y: f64, z: f64) -> Self {
-        let mut v = Vector::new(x, y, z);
+    pub fn normalized(x: f64, y: f64) -> Self {
+        let mut v = Vector::new(x, y);
         v.normalize();
         v
     }
     /// Returns the magnitude of the vector.
     pub fn magnitude(self) -> f64 {
-        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+        (self.x * self.x + self.y * self.y).sqrt()
     }
     /// Normalizes a vector, unit vector `u = v/|v|`.
     pub fn normalize(&mut self) {
@@ -138,7 +138,6 @@ impl Vector {
 
         self.x /= mag;
         self.y /= mag;
-        self.z /= mag;
     }
 }
 
@@ -149,7 +148,6 @@ impl std::ops::Add<Self> for Vector {
         Self {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
-            z: self.z + rhs.z,
         }
     }
 }
@@ -161,7 +159,6 @@ impl std::ops::Sub for Vector {
         Self {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
-            z: self.z - rhs.z,
         }
     }
 }
@@ -342,7 +339,7 @@ mod tests {
 
     #[test]
     fn vectors() {
-        let v1 = Vector::new(3.0, 4.0, 0.0);
+        let v1 = Vector::new(3.0, 4.0);
         assert_eq!(v1.magnitude(), 5.0);
     }
 }
