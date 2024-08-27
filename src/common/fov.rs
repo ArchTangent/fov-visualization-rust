@@ -46,6 +46,46 @@ pub enum Octant {
 }
 
 impl Octant {
+    /// Converts primary/secondary deltas (`dp`, `ds`) to x/y deltas (`dx`, `dy`).
+    /// 
+    /// Table:
+    /// ```text
+    /// Octant 1:   dx = (dpri *  1) + (dsec *  0)
+	/// 		    dy = (dpri *  0) + (dsec *  1)
+    ///
+    /// Octant 2:   dx = (dpri *  0) + (dsec *  1)
+    ///             dy = (dpri *  1) + (dsec *  0)
+    ///
+    /// Octant 3:   dx = (dpri *  0) + (dsec * -1)
+    ///             dy = (dpri *  1) + (dsec *  0)
+    ///
+    /// Octant 4:   dx = (dpri * -1) + (dsec *  0)
+    ///             dy = (dpri *  0) + (dsec *  1)
+    ///
+    /// Octant 5:   dx = (dpri * -1) + (dsec *  0)
+    ///             dy = (dpri *  0) + (dsec * -1)
+    ///
+    /// Octant 6:   dx = (dpri *  0) + (dsec * -1)
+    ///             dy = (dpri * -1) + (dsec *  0)
+    ///
+    /// Octant 7:   dx = (dpri *  0) + (dsec *  1)
+    ///             dy = (dpri * -1) + (dsec *  0)
+    ///
+    /// Octant 8:   dx = (dpri *  1) + (dsec *  0)
+    /// 			dy = (dpri *  0) + (dsec * -1)	
+    /// ```
+    pub fn dpds_to_dxdy(&self, dp: i32, ds: i32) -> Delta {
+        match self {
+            Octant::O1 => Delta::new(dp, ds),
+            Octant::O2 => Delta::new(ds, dp),
+            Octant::O3 => Delta::new(-ds, dp),
+            Octant::O4 => Delta::new(-dp, ds),
+            Octant::O5 => Delta::new(-dp, -ds),
+            Octant::O6 => Delta::new(-ds, -dp),
+            Octant::O7 => Delta::new(ds, -dp),
+            Octant::O8 => Delta::new(dp, -ds),
+        }
+    }
     /// Converts `Octant` to floating point `(dx, dy)` deltas.
     pub fn deltas_f(&self) -> Point {
         match self {

@@ -13,7 +13,13 @@ use crate::{math::Line, FovRadius, Octant, QFactor};
 
 // TODO: circular FOV culling 
 
+// TODO: FOV lines should be in dx/dy terms
+// TODO: Octant.to_deltaFOV lines should be in dx/dy terms
 /// Returns a list of FOV lines for a given radius, octant, and Q-value.
 pub fn get_fov_lines(radius: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {
+    // let deltas xmult, ymult
+    // match (radius, qfactor) {
+    //     FovRadius::R8, QFactor::Single, O
+    // }
     todo!()
 }
