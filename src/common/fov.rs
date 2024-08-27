@@ -1,7 +1,7 @@
 //! Common FOV types for FOV Visualization - Rust (2D).
 
 use super::maps::Coords;
-use super::math::{Delta, Point};
+use super::math::{Delta, Point, Line};
 
 /// FOV radius used in calculations.
 pub enum FovRadius {
@@ -118,4 +118,15 @@ impl Octant {
 pub enum QFactor {
     Single,
     Double,
+}
+
+// TODO: FOV lines should be in dx/dy terms
+// TODO: Octant.to_deltaFOV lines should be in dx/dy terms
+/// Returns a list of FOV lines for a given radius, octant, and Q-value.
+pub fn get_fov_lines(radius: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {
+    // let deltas xmult, ymult
+    // match (radius, qfactor) {
+    //     FovRadius::R8, QFactor::Single
+    // }
+    todo!()
 }
