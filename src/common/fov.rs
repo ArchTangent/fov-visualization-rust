@@ -3,6 +3,8 @@
 use super::maps::Coords;
 use super::math::{Delta, Point, Line};
 
+// TODO: resolve proper number of FOV lines, equal to the rFOV
+
 /// FOV radius used in calculations.
 pub enum FovRadius {
     R8,
@@ -21,6 +23,16 @@ impl FovRadius {
             FovRadius::R32 => 32,
             FovRadius::R64 => 64,
             FovRadius::R128 => 128,
+        }
+    }
+    /// Converts `FovRadius` into float `u64` form.
+    pub fn to_flt(&self) -> f64 {
+        match self {
+            FovRadius::R8 => 8.0,
+            FovRadius::R16 => 16.0,
+            FovRadius::R32 => 32.0,
+            FovRadius::R64 => 64.0,
+            FovRadius::R128 => 128.0,
         }
     }
 }
@@ -46,7 +58,7 @@ pub enum Octant {
 }
 
 impl Octant {
-    /// Converts primary/secondary deltas (`dp`, `ds`) to x/y deltas (`dx`, `dy`).
+    /// Converts pri/sec `i32` deltas (`dp`, `ds`) to x/y deltas (`dx`, `dy`).
     /// 
     /// Table:
     /// ```text
@@ -86,6 +98,19 @@ impl Octant {
             Octant::O8 => Delta::new(dp, -ds),
         }
     }
+    /// Converts pri/sec `f64` deltas (`dp`, `ds`) to x/y deltas (`dx`, `dy`).
+    pub fn dpds_to_dxdy_flt(&self, dp: f64, ds: f64) -> Point {
+        match self {
+            Octant::O1 => Point::new(dp, ds),
+            Octant::O2 => Point::new(ds, dp),
+            Octant::O3 => Point::new(-ds, dp),
+            Octant::O4 => Point::new(-dp, ds),
+            Octant::O5 => Point::new(-dp, -ds),
+            Octant::O6 => Point::new(-ds, -dp),
+            Octant::O7 => Point::new(ds, -dp),
+            Octant::O8 => Point::new(dp, -ds),
+        }
+    }
     /// Converts `Octant` to floating point `(dx, dy)` deltas.
     pub fn deltas_f(&self) -> Point {
         match self {
@@ -123,10 +148,69 @@ pub enum QFactor {
 // TODO: FOV lines should be in dx/dy terms
 // TODO: Octant.to_deltaFOV lines should be in dx/dy terms
 /// Returns a list of FOV lines for a given radius, octant, and Q-value.
-pub fn get_fov_lines(radius: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {
-    // let deltas xmult, ymult
-    // match (radius, qfactor) {
-    //     FovRadius::R8, QFactor::Single
-    // }
-    todo!()
+pub fn get_fov_lines(rfov: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {
+    let mut lines = Vec::new();
+
+    // Line origin
+    let p0x: f64 = 0.5;
+    let p0y: f64 = 0.5;
+
+    let radius = rfov.to_flt();
+
+
+    // TODO: resolve proper number of FOV lines, equal to the rFOV
+    // TODO: for Single, all FOV points are at N/S tile edge
+    // TODO: for DOuble, 1st and last FOV points are 0.25 from edge, others are 0.25 and 0.75
+    // TODO: rewrite with to separate functions `get_fov_lines_single()` and `...double()` based on `match`
+
+    // First FOV point delta from origin (pri/sec)5
+    let delta_i = octant.dpds_to_dxdy_flt(radius, 0.25);
+    let pix = p0x + delta_i.x;
+    let piy = p0y + delta_i.y;
+
+    let line_i = Line::new(p0x, p0y, pix, piy);
+    lines.push(line_i);
+
+    // FOV lines between first and last, depending on Q-factor
+    for n in 1..rfov.to_int() {
+        let nf = n as f64;
+
+        match qfactor {
+            QFactor::Single => {
+                // One FOV point per tile along edge
+                let delta_n = octant.dpds_to_dxdy_flt(radius, nf);
+                let pnx = p0x + delta_n.x;
+                let pny = p0y + delta_n.y;
+
+                let line_n = Line::new(p0x, p0y, pnx, pny);
+                lines.push(line_n);
+            },
+            QFactor::Double => {
+                // Two FOV points per tile along edge
+                let delta_n = octant.dpds_to_dxdy_flt(radius, nf);
+                let pnx = p0x + delta_n.x;
+                let pny = p0y + delta_n.y;
+
+                let line_n = Line::new(p0x, p0y, pnx, pny);
+                lines.push(line_n);
+
+                let delta_n = octant.dpds_to_dxdy_flt(radius, nf);
+                let pnx = p0x + delta_n.x;
+                let pny = p0y + delta_n.y;
+
+                let line_n = Line::new(p0x, p0y, pnx, pny);
+                lines.push(line_n);
+            },
+        }
+    }
+
+    // Final FOV point delta from origin (pri/sec)
+    let delta_f = octant.dpds_to_dxdy_flt(radius, radius - 0.25);
+    let pfx = p0x + delta_f.x;
+    let pfy = p0y + delta_f.y;
+
+    let line_f = Line::new(p0x, p0y, pfx, pfy);
+    lines.push(line_f);
+
+    lines
 }
