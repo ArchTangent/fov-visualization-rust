@@ -1,11 +1,11 @@
 //! Common FOV types for FOV Visualization - Rust (2D).
 
-use super::maps::Coords;
-use super::math::{Delta, Point, Line};
+use super::math::{Delta, Line, Point};
 
 // TODO: resolve proper number of FOV lines, equal to the rFOV
 
 /// FOV radius used in calculations.
+#[derive(Debug, Clone, Copy)]
 pub enum FovRadius {
     R8,
     R16,
@@ -38,6 +38,7 @@ impl FovRadius {
 }
 
 /// The eight primary subdivisions of an FOV map.
+#[derive(Debug, Clone, Copy)]
 pub enum Octant {
     /// Octant ENE of origin.
     O1,
@@ -59,11 +60,11 @@ pub enum Octant {
 
 impl Octant {
     /// Converts pri/sec `i32` deltas (`dp`, `ds`) to x/y deltas (`dx`, `dy`).
-    /// 
+    ///
     /// Table:
     /// ```text
     /// Octant 1:   dx = (dpri *  1) + (dsec *  0)
-	/// 		    dy = (dpri *  0) + (dsec *  1)
+    /// 		    dy = (dpri *  0) + (dsec *  1)
     ///
     /// Octant 2:   dx = (dpri *  0) + (dsec *  1)
     ///             dy = (dpri *  1) + (dsec *  0)
@@ -84,7 +85,7 @@ impl Octant {
     ///             dy = (dpri * -1) + (dsec *  0)
     ///
     /// Octant 8:   dx = (dpri *  1) + (dsec *  0)
-    /// 			dy = (dpri *  0) + (dsec * -1)	
+    /// 			dy = (dpri *  0) + (dsec * -1)
     /// ```
     pub fn dpds_to_dxdy(&self, dp: i32, ds: i32) -> Delta {
         match self {
@@ -140,21 +141,22 @@ impl Octant {
 }
 
 /// Quantizing factor, multiplied by FOV radius to set FOV granularity.
+#[derive(Debug, Clone, Copy)]
 pub enum QFactor {
     Single,
     Double,
 }
 
 /// Returns a list of FOV lines with specified radius, octant, and Q-value.
-pub fn get_fov_lines(rfov: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {   
+pub fn get_fov_lines(rfov: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {
     match qfactor {
         QFactor::Single => get_fov_lines_single(rfov, octant),
         QFactor::Double => get_fov_lines_single(rfov, octant),
     }
-}    
+}
 
 /// Returns a list of `Radius * Q-value` FOV lines.
-pub fn get_fov_lines_single(rfov: FovRadius, octant: Octant) -> Vec<Line> {
+fn get_fov_lines_single(rfov: FovRadius, octant: Octant) -> Vec<Line> {
     // Lines and origin
     let mut lines = Vec::new();
     let radius = rfov.to_flt();
@@ -178,7 +180,7 @@ pub fn get_fov_lines_single(rfov: FovRadius, octant: Octant) -> Vec<Line> {
 }
 
 /// Returns a list of `2 * Radius * Q-value` FOV lines.
-pub fn get_fov_lines_double(rfov: FovRadius, octant: Octant) -> Vec<Line> {
+fn get_fov_lines_double(rfov: FovRadius, octant: Octant) -> Vec<Line> {
     // Lines and origin
     let mut lines = Vec::new();
     let radius = rfov.to_flt();
@@ -201,14 +203,14 @@ pub fn get_fov_lines_double(rfov: FovRadius, octant: Octant) -> Vec<Line> {
         let delta_n = octant.dpds_to_dxdy_flt(radius, nf - 0.25);
         let pnx = p0x + delta_n.x;
         let pny = p0y + delta_n.y;
-    
+
         let line_n1 = Line::new(p0x, p0y, pnx, pny);
         lines.push(line_n1);
-    
+
         let delta_n = octant.dpds_to_dxdy_flt(radius, nf + 0.25);
         let pnx = p0x + delta_n.x;
         let pny = p0y + delta_n.y;
-    
+
         let line_n2 = Line::new(p0x, p0y, pnx, pny);
         lines.push(line_n2);
     }
