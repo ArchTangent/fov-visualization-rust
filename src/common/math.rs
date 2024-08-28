@@ -12,7 +12,7 @@ impl Delta {
         Self { dx, dy }
     }
 }
- 
+
 /// 2D point.
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
@@ -51,12 +51,7 @@ pub struct Line {
 impl Line {
     /// Creates a new line.
     pub fn new(x1: f64, y1: f64, x2: f64, y2: f64) -> Self {
-        Self {
-            x1,
-            y1,
-            x2,
-            y2,
-        }
+        Self { x1, y1, x2, y2 }
     }
     /// Creates a new line of specified `length` from given `ray`.
     pub fn from_ray(ray: Ray, length: f64) -> Self {
@@ -66,12 +61,7 @@ impl Line {
         let x2 = x1 + v.x * length;
         let y2 = y1 + v.y * length;
 
-        Self {
-            x1,
-            y1,
-            x2,
-            y2,
-        }
+        Self { x1, y1, x2, y2 }
     }
     /// Returns the length of the line.
     pub fn length(&self) -> f64 {
@@ -79,6 +69,61 @@ impl Line {
         let dy = (self.y1 - self.y2).abs();
 
         return (dx * dx + dy * dy).sqrt();
+    }
+    /// Returns `true` if `self` intersects `other` line, else `false`.
+    ///
+    /// - Segment 1 is from `(x1, y1)` to `(x2, y2)`, along `t`.
+    /// - Segment 2 is from `(x3, y3)` to `(x4, y4)`, along `u`.
+    pub fn intersects(self, other: Self) -> bool {
+        let (x1, y1, x2, y2) = (self.x1, self.y1, self.x2, self.y2);
+        let (x3, y3, x4, y4) = (other.x1, other.y1, other.x2, other.y2);
+
+        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+        if denom == 0.0 {
+            return false;
+        }
+
+        // Intersection point must be along `t` and `u`
+        let t_num = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4);
+        if (t_num > 0.0 && t_num > denom) || (t_num < 0.0 && t_num < denom) {
+            return false;
+        }
+
+        let u_num = (x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2);
+        if (u_num > 0.0 && u_num > denom) || (u_num < 0.0 && u_num < denom) {
+            return false;
+        }
+
+        true
+    }
+    /// Returns intersection point of `self` and `other` line, else `None`.
+    ///
+    /// - Segment 1 is from `(x1, y1)` to `(x2, y2)`, along `t`.
+    /// - Segment 2 is from `(x3, y3)` to `(x4, y4)`, along `u`.
+    pub fn intersection(self, other: Self) -> Option<Point> {
+        let (x1, y1, x2, y2) = (self.x1, self.y1, self.x2, self.y2);
+        let (x3, y3, x4, y4) = (other.x1, other.y1, other.x2, other.y2);
+
+        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+        if denom == 0.0 {
+            return None;
+        }
+
+        // Intersection point must be along `t` and `u`
+        let t_num = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4);
+        if (t_num > 0.0 && t_num > denom) || (t_num < 0.0 && t_num < denom) {
+            return None;
+        }
+
+        let u_num = (x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2);
+        if (u_num > 0.0 && u_num > denom) || (u_num < 0.0 && u_num < denom) {
+            return None;
+        }
+
+        // Choose either `t` or `u` intersection point (`t` chosen)
+        let t = t_num / denom;
+
+        Some(Point::new(x1 + t * (x2 - x1), y1 + t * (y2 - y1)))
     }
 }
 
@@ -172,7 +217,7 @@ impl std::ops::Sub for Vector {
 ///
 /// - `p0`: reference point. Always closest to origin.
 /// - `s1`, `s2`: Side vectors defining width and height. Needed for intersections.
-/// - `s1_abs_mag`, `s2_abs_mag`: absolute magnitude (no square root) of side vectors `s1` and `s2`. 
+/// - `s1_abs_mag`, `s2_abs_mag`: absolute magnitude (no square root) of side vectors `s1` and `s2`.
 ///    Effectively width squared or height squared.
 /// - `normal`: defines normal vector to the rectangle plane. Always points toward origin. For
 ///    side `A`, normal points toward `x=0`. For side `B`, it points toward `y=0`. For
@@ -189,37 +234,24 @@ pub struct FovRect {
 
 // TODO: continue FovRect; add Ray-Rect intersection
 impl FovRect {
-    pub fn new(p0: Point, s1: Vector, s2: Vector, s1_abs_mag: f64, s2_abs_mag: f64, normal: Vector) -> Self {
-        Self { p0, s1, s2, s1_abs_mag, s2_abs_mag, normal }
+    pub fn new(
+        p0: Point,
+        s1: Vector,
+        s2: Vector,
+        s1_abs_mag: f64,
+        s2_abs_mag: f64,
+        normal: Vector,
+    ) -> Self {
+        Self {
+            p0,
+            s1,
+            s2,
+            s1_abs_mag,
+            s2_abs_mag,
+            normal,
+        }
     }
 }
-
-// pub struct Ray {
-//     pub x1: f64,
-//     pub y1: f64,
-//     pub z1: f64,
-//     pub dx: f64,
-//     pub dy: f64,
-//     pub dz: f64,
-// }
-
-// class Coords:
-//     """2D map integer coordinates."""
-
-//     __slots__ = "x", "y"
-
-//     def __init__(self, x: int, y: int) -> None:
-//         self.x = x
-//         self.y = y
-
-//     def __iter__(self):
-//         return iter((self.x, self.y))
-
-//     def __repr__(self) -> str:
-//         return f"{self.x, self.y}"
-
-//     def as_tuple(self):
-//         return (self.x, self.y)
 
 // class Line:
 //     """2D line segment."""
@@ -274,31 +306,6 @@ impl FovRect {
 //             return False
 
 //         return True
-
-//     def intersection(self, other: Self):
-//         """Returns intersection point of self and `other` line, else `None`.
-
-//         Segment 1 is from (x1, y1) to (x2, y2), along `t`.
-//         Segment 2 is from (x3, y3) to (x4, y4), along `u`.
-//         """
-//         x1, y1, x2, y2 = self
-//         x3, y3, x4, y4 = other
-//         denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
-//         if denom == 0:
-//             return None
-
-//         # Intersection point must be along `t` and `u`
-//         t_num = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)
-//         if (t_num > 0 and t_num > denom) or (t_num < 0 and t_num < denom):
-//             return None
-
-//         u_num = (x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2)
-//         if (u_num > 0 and u_num > denom) or (u_num < 0 and u_num < denom):
-//             return None
-
-//         # Choose either `t` or `u` intersection point (`t` chosen)
-//         t = t_num / denom
-//         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
 // class Point:
 //     """2D map floating point coordinates."""

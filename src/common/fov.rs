@@ -163,9 +163,9 @@ fn get_fov_lines_single(rfov: FovRadius, octant: Octant) -> Vec<Line> {
     let p0x: f64 = 0.5;
     let p0y: f64 = 0.5;
 
-    // FOV points with secondary delta of +0.75
+    // FOV points with secondary delta just into neighboring tile
     for n in 0..rfov.to_int() {
-        let ds = n as f64 + 0.75;
+        let ds = n as f64 + 0.51;
 
         // One FOV point per tile along edge
         let delta_n = octant.dpds_to_dxdy_flt(radius, ds);
