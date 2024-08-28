@@ -73,7 +73,8 @@ impl Line {
             y2,
         }
     }
-    pub fn len(&self) -> f64 {
+    /// Returns the length of the line.
+    pub fn length(&self) -> f64 {
         let dx = (self.x1 - self.x2).abs();
         let dy = (self.y1 - self.y2).abs();
 

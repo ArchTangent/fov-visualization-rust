@@ -11,5 +11,9 @@ fn main() {
 
     let lines1 = get_fov_lines(rfov, qfactor, octant);
 
-    println!("FOV Lines {rfov:?} {qfactor:?} {octant:?}:\n\t{lines1:?}");
+    println!("FOV Lines {rfov:?} {qfactor:?} {octant:?}:");
+    for fov_line in lines1.iter() {
+        let l = fov_line.length();
+        println!("  {fov_line:?}: len: {l}");
+    }
 }

@@ -151,7 +151,7 @@ pub enum QFactor {
 pub fn get_fov_lines(rfov: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {
     match qfactor {
         QFactor::Single => get_fov_lines_single(rfov, octant),
-        QFactor::Double => get_fov_lines_single(rfov, octant),
+        QFactor::Double => get_fov_lines_double(rfov, octant),
     }
 }
 
@@ -224,4 +224,37 @@ fn get_fov_lines_double(rfov: FovRadius, octant: Octant) -> Vec<Line> {
     lines.push(line_f);
 
     lines
+}
+
+//  ########  ########   ######   ########
+//     ##     ##        ##           ##
+//     ##     ######     ######      ##
+//     ##     ##              ##     ##
+//     ##     ########  #######      ##
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // FOV line sanity check: proper number of lines.
+    #[test]
+    fn fov_line_count() {
+        let suite = [
+            get_fov_lines(FovRadius::R8, QFactor::Single, Octant::O1),
+            get_fov_lines(FovRadius::R8, QFactor::Double, Octant::O2),
+            get_fov_lines(FovRadius::R16, QFactor::Single, Octant::O3),
+            get_fov_lines(FovRadius::R16, QFactor::Double, Octant::O4),
+            get_fov_lines(FovRadius::R32, QFactor::Single, Octant::O5),
+            get_fov_lines(FovRadius::R32, QFactor::Double, Octant::O6),
+            get_fov_lines(FovRadius::R64, QFactor::Single, Octant::O7),
+            get_fov_lines(FovRadius::R64, QFactor::Double, Octant::O8),
+            get_fov_lines(FovRadius::R128, QFactor::Single, Octant::O1),
+            get_fov_lines(FovRadius::R128, QFactor::Double, Octant::O2),
+        ];
+        let actual: Vec<_> = suite.iter().map(|lines| lines.len()).collect();
+
+        let expected = [8, 16, 16, 32, 32, 64, 64, 128, 128, 256];
+
+        assert_eq!(actual, expected);
+    }
 }
