@@ -1,5 +1,7 @@
 //! Math functionality for FOV Visualization - Rust (2D)
 
+// TODO: continue FovRect; add Ray-Rect intersection
+
 /// 2D integer deltas.
 #[derive(Debug, Clone, Copy)]
 pub struct Delta {
@@ -13,7 +15,7 @@ impl Delta {
     }
 }
 
-/// 2D point.
+/// 2D floating point coordinates.
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
     pub x: f64,
@@ -25,6 +27,13 @@ impl Point {
     pub fn new(x: f64, y: f64) -> Self {
         Self { x, y }
     }
+    /// Returns the distance between `self` and `other`.
+    pub fn distance(&self, other: Point) -> f64 {
+        let dx_abs = (other.x - self.x).powi(2);
+        let dy_abs = (other.y - self.y).powi(2);
+
+        (dx_abs + dy_abs).sqrt()
+    }
     /// Creates a new `Point` displaced by `Vector` `v`.
     pub fn shifted_by(&self, v: Vector) -> Self {
         Point {
@@ -32,7 +41,7 @@ impl Point {
             y: self.y + v.y,
         }
     }
-    /// Displaced current `Point` by `Vector` `v`, _in-place_.
+    /// Displaces current `Point` by `Vector` `v`, _in-place_.
     pub fn shift_by(&mut self, v: Vector) {
         self.x += v.x;
         self.y += v.y;
@@ -223,7 +232,6 @@ pub struct FovRect {
     pub normal: Vector,
 }
 
-// TODO: continue FovRect; add Ray-Rect intersection
 impl FovRect {
     pub fn new(
         p0: Point,
@@ -243,88 +251,6 @@ impl FovRect {
         }
     }
 }
-
-// class Line:
-//     """2D line segment."""
-
-//     __slots__ = "x1", "y1", "x2", "y2"
-
-//     def __init__(
-//         self, x1: int | float, y1: int | float, x2: int | float, y2: int | float
-//     ) -> None:
-//         self.x1 = x1
-//         self.y1 = y1
-//         self.x2 = x2
-//         self.y2 = y2
-
-//     def __iter__(self):
-//         return iter((self.x1, self.y1, self.x2, self.y2))
-
-//     def __repr__(self) -> str:
-//         return f"Line {self.x1, self.y1, self.x2, self.y2}"
-
-//     def as_tuple(self):
-//         return (self.x1, self.y1, self.x2, self.y2)
-
-//     def to_dict(self):
-//         """Converts `Line` to dictionary for serialization."""
-//         return {
-//             "x1": self.x1,
-//             "y1": self.y1,
-//             "x2": self.x1,
-//             "y2": self.y2,
-//         }
-
-//     def intersects(self, other: Self) -> bool:
-//         """Returns `True` if this line intersects `other` line.
-
-//         Segment 1 is from (x1, y1) to (x2, y2), along `t`.
-//         Segment 2 is from (x3, y3) to (x4, y4), along `u`.
-//         """
-//         x1, y1, x2, y2 = self
-//         x3, y3, x4, y4 = other
-//         denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
-//         if denom == 0:
-//             return False
-
-//         # Intersection point must be along `t` and `u`
-//         t_num = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)
-//         if (t_num > 0 and t_num > denom) or (t_num < 0 and t_num < denom):
-//             return False
-
-//         u_num = (x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2)
-//         if (u_num > 0 and u_num > denom) or (u_num < 0 and u_num < denom):
-//             return False
-
-//         return True
-
-// class Point:
-//     """2D map floating point coordinates."""
-
-//     __slots__ = "x", "y"
-
-//     def __init__(self, x: float, y: float) -> None:
-//         self.x = x
-//         self.y = y
-
-//     def __iter__(self):
-//         return iter((self.x, self.y))
-
-//     def __repr__(self) -> str:
-//         return f"P{self.x, self.y}"
-
-//     def as_tuple(self):
-//         return (self.x, self.y)
-
-//     def distance(self, other: Self) -> float:
-//         """Returns distance between self and other."""
-//         dx_abs = (other.x - self.x) ** 2
-//         dy_abs = (other.y - self.y) ** 2
-
-//         return math.sqrt(dx_abs + dy_abs)
-
-//     def rounded(self) -> Self:
-//         return Point(round(self.x, 3), round(self.y, 3))
 
 //  ########  ########   ######   ########
 //     ##     ##        ##           ##
