@@ -40,7 +40,7 @@ impl Point {
 }
 
 /// 2D line used for FOV, LOS, and intersections.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Line {
     pub x1: f64,
     pub y1: f64,
@@ -78,23 +78,16 @@ impl Line {
         let (x1, y1, x2, y2) = (self.x1, self.y1, self.x2, self.y2);
         let (x3, y3, x4, y4) = (other.x1, other.y1, other.x2, other.y2);
 
-        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-        if denom == 0.0 {
-            return false;
-        }
-
         // Intersection point must be along `t` and `u`
+        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
         let t_num = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4);
-        if (t_num > 0.0 && t_num > denom) || (t_num < 0.0 && t_num < denom) {
-            return false;
-        }
-
         let u_num = (x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2);
-        if (u_num > 0.0 && u_num > denom) || (u_num < 0.0 && u_num < denom) {
-            return false;
-        }
 
-        true
+        !(denom == 0.0
+            || (t_num > 0.0 && t_num > denom)
+            || (t_num < 0.0 && t_num < denom)
+            || (u_num > 0.0 && u_num > denom)
+            || (u_num < 0.0 && u_num < denom))
     }
     /// Returns intersection point of `self` and `other` line, else `None`.
     ///
@@ -104,19 +97,17 @@ impl Line {
         let (x1, y1, x2, y2) = (self.x1, self.y1, self.x2, self.y2);
         let (x3, y3, x4, y4) = (other.x1, other.y1, other.x2, other.y2);
 
-        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-        if denom == 0.0 {
-            return None;
-        }
-
         // Intersection point must be along `t` and `u`
+        let denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
         let t_num = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4);
-        if (t_num > 0.0 && t_num > denom) || (t_num < 0.0 && t_num < denom) {
-            return None;
-        }
-
         let u_num = (x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2);
-        if (u_num > 0.0 && u_num > denom) || (u_num < 0.0 && u_num < denom) {
+
+        if denom == 0.0
+            || (t_num > 0.0 && t_num > denom)
+            || (t_num < 0.0 && t_num < denom)
+            || (u_num > 0.0 && u_num > denom)
+            || (u_num < 0.0 && u_num < denom)
+        {
             return None;
         }
 
