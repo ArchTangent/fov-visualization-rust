@@ -2,6 +2,8 @@
 
 // TODO: continue FovRect; add Ray-Rect intersection
 
+use super::maps::Coords;
+
 /// 2D integer deltas.
 #[derive(Debug, Clone, Copy)]
 pub struct Delta {
@@ -16,7 +18,7 @@ impl Delta {
 }
 
 /// 2D floating point coordinates.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
@@ -45,6 +47,10 @@ impl Point {
     pub fn shift_by(&mut self, v: Vector) {
         self.x += v.x;
         self.y += v.y;
+    }
+    /// Converts current `Point` into `Coords` using `floor()`.
+    pub fn to_coords(&self) -> Coords {
+        Coords::from(*self)
     }
 }
 
