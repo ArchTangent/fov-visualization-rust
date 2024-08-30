@@ -55,7 +55,7 @@ impl Point {
 }
 
 /// 2D line used for FOV, LOS, and intersections.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Line {
     pub x1: f64,
     pub y1: f64,
@@ -130,6 +130,15 @@ impl Line {
         let t = t_num / denom;
 
         Some(Point::new(x1 + t * (x2 - x1), y1 + t * (y2 - y1)))
+    }
+    /// Creates a new `Line` displaced by `x` and `y`.
+    pub fn shifted_by(&self, x: f64, y: f64) -> Self {
+        Line {
+            x1: self.x1 + x,
+            y1: self.y1 + y,
+            x2: self.x2 + x,
+            y2: self.y2 + y,
+        }
     }
 }
 

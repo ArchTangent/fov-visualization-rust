@@ -19,6 +19,8 @@ Sizing:
 
 | rFOV | Qval | nTile | nObst | bytes |  per_O |  total  |   size  |
 | ---: | ---: | ----: | ----: | ----: | -----: | ------: | ------: |
+|   16 |   16 |   128 |   128 |     2 |    256 |    1024 |   1.0KB |
+|   16 |   32 |   128 |   128 |     4 |    512 |    2048 |   2.0KB |
 |   32 |   32 |   468 |   468 |     4 |   1872 |   14976 |  15.0KB |
 |   32 |   64 |   468 |   468 |     8 |   3744 |   29552 |  29.6KB |
 |   64 |   64 |  1788 |  1788 |     8 |  14304 |  114432 | 114.4KB |
@@ -29,7 +31,7 @@ Sizing:
 Where:
 - `rFOV`  = FOV radius.
 - `Qval`  = number of quantized FOV lines, equal to number of `visible` and `blocking` bits for FOV calc.
-- `nTile` = number of tiles per octant.
+- `nTile` = number of tiles per octant. Eq: `math.ceil(sum(n for n in range(32+2)) * 5 / 6)`
 - `nObst` = number of obstructions per octant, equal to `tiles per octant * obstructions per tile`.
 - `bytes` = number of bytes per obstruction, equal to `Qval / 8`, rounded up to nearest integer.
 - `per_O` = number of bytes per octant, equal to `bytes * nObst`.

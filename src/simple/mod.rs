@@ -3,3 +3,5 @@
 pub mod builder;
 pub mod fovcalc;
 pub mod fovmap;
+
+pub use builder::*;

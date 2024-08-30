@@ -1,8 +1,8 @@
 //! FOV Visualization - Rust (2D): `fov2d`
 
-mod common;
-mod simple;
-mod standard;
+pub mod common;
+pub mod simple;
+pub mod standard;
 
 pub use common::drawing;
 pub use common::files;

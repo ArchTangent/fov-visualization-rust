@@ -147,32 +147,36 @@ pub enum QFactor {
     Double,
 }
 
-/// Returns a list of FOV lines with specified radius, octant, and Q-value.
-pub fn get_fov_lines(rfov: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {
+/// Returns a list of FOV lines with specified radius and Q-value.
+/// 
+/// FOV lines are defined in terms of `(pri, sec)` coordinates, as 
+/// opposed to `(x, y)` coordinates. All lines are the same due to 
+/// symmetry between octants.
+pub fn get_fov_lines(rfov: FovRadius, qfactor: QFactor) -> Vec<Line> {
     match qfactor {
-        QFactor::Single => get_fov_lines_single(rfov, octant),
-        QFactor::Double => get_fov_lines_double(rfov, octant),
+        QFactor::Single => get_fov_lines_single(rfov),
+        QFactor::Double => get_fov_lines_double(rfov),
     }
 }
 
 /// Returns a list of `Radius * Q-value` FOV lines.
-fn get_fov_lines_single(rfov: FovRadius, octant: Octant) -> Vec<Line> {
+fn get_fov_lines_single(rfov: FovRadius) -> Vec<Line> {
     // Lines and origin
     let mut lines = Vec::new();
     let radius = rfov.to_flt();
-    let p0x: f64 = 0.5;
-    let p0y: f64 = 0.5;
+    let p0pri: f64 = 0.5;
+    let p0sec: f64 = 0.5;
 
     // FOV points with secondary delta just into neighboring tile
     for n in 0..rfov.to_int() {
-        let ds = n as f64 + 0.51;
+        let dpri = radius;
+        let dsec = n as f64 + 0.51;
 
         // One FOV point per tile along edge
-        let delta_n = octant.dpds_to_dxdy_flt(radius, ds);
-        let pnx = p0x + delta_n.x;
-        let pny = p0y + delta_n.y;
+        let pfpri = p0pri + dpri;
+        let pfsec = p0sec + dsec;
 
-        let line_n = Line::new(p0x, p0y, pnx, pny);
+        let line_n = Line::new(p0pri, p0sec, pfpri, pfsec);
         lines.push(line_n);
     }
 
@@ -180,19 +184,18 @@ fn get_fov_lines_single(rfov: FovRadius, octant: Octant) -> Vec<Line> {
 }
 
 /// Returns a list of `2 * Radius * Q-value` FOV lines.
-fn get_fov_lines_double(rfov: FovRadius, octant: Octant) -> Vec<Line> {
+fn get_fov_lines_double(rfov: FovRadius) -> Vec<Line> {
     // Lines and origin
     let mut lines = Vec::new();
     let radius = rfov.to_flt();
-    let p0x: f64 = 0.5;
-    let p0y: f64 = 0.5;
+    let p0pri: f64 = 0.5;
+    let p0sec: f64 = 0.5;
 
     // First FOV point delta from origin (pri/sec)
-    let delta_i = octant.dpds_to_dxdy_flt(radius, 0.25);
-    let pix = p0x + delta_i.x;
-    let piy = p0y + delta_i.y;
+    let pipri = p0pri + radius;
+    let pisec = p0sec + 0.25;
 
-    let line_i = Line::new(p0x, p0y, pix, piy);
+    let line_i = Line::new(p0pri, p0sec, pipri, pisec);
     lines.push(line_i);
 
     // FOV lines between first and last, depending on Q-factor
@@ -200,30 +203,168 @@ fn get_fov_lines_double(rfov: FovRadius, octant: Octant) -> Vec<Line> {
         let nf = n as f64;
 
         // Two FOV points per tile along edge
-        let delta_n = octant.dpds_to_dxdy_flt(radius, nf - 0.25);
-        let pnx = p0x + delta_n.x;
-        let pny = p0y + delta_n.y;
+        let pnx = p0pri + radius;
+        let pny = p0sec + nf - 0.25;
 
-        let line_n1 = Line::new(p0x, p0y, pnx, pny);
+        let line_n1 = Line::new(p0pri, p0sec, pnx, pny);
         lines.push(line_n1);
 
-        let delta_n = octant.dpds_to_dxdy_flt(radius, nf + 0.25);
-        let pnx = p0x + delta_n.x;
-        let pny = p0y + delta_n.y;
+        let pnx = p0pri + radius;
+        let pny = p0sec + nf + 0.25;
 
-        let line_n2 = Line::new(p0x, p0y, pnx, pny);
+        let line_n2 = Line::new(p0pri, p0sec, pnx, pny);
         lines.push(line_n2);
     }
 
     // Final FOV point delta from origin (pri/sec)
-    let delta_f = octant.dpds_to_dxdy_flt(radius, radius - 0.25);
-    let pfx = p0x + delta_f.x;
-    let pfy = p0y + delta_f.y;
+    let pfpri = p0pri + radius;
+    let pfsec = p0sec + radius - 0.25;
 
-    let line_f = Line::new(p0x, p0y, pfx, pfy);
+    let line_f = Line::new(p0pri, p0sec, pfpri, pfsec);
     lines.push(line_f);
 
     lines
+}
+
+
+// /// Returns a list of FOV lines with specified radius, octant, and Q-value.
+// pub fn get_fov_lines(rfov: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {
+//     match qfactor {
+//         QFactor::Single => get_fov_lines_single(rfov, octant),
+//         QFactor::Double => get_fov_lines_double(rfov, octant),
+//     }
+// }
+
+// /// Returns a list of `Radius * Q-value` FOV lines.
+// fn get_fov_lines_single(rfov: FovRadius, octant: Octant) -> Vec<Line> {
+//     // Lines and origin
+//     let mut lines = Vec::new();
+//     let radius = rfov.to_flt();
+//     let p0x: f64 = 0.5;
+//     let p0y: f64 = 0.5;
+
+//     // FOV points with secondary delta just into neighboring tile
+//     for n in 0..rfov.to_int() {
+//         let ds = n as f64 + 0.51;
+
+//         // One FOV point per tile along edge
+//         let delta_n = octant.dpds_to_dxdy_flt(radius, ds);
+//         let pnx = p0x + delta_n.x;
+//         let pny = p0y + delta_n.y;
+
+//         let line_n = Line::new(p0x, p0y, pnx, pny);
+//         lines.push(line_n);
+//     }
+
+//     lines
+// }
+
+// /// Returns a list of `2 * Radius * Q-value` FOV lines.
+// fn get_fov_lines_double(rfov: FovRadius, octant: Octant) -> Vec<Line> {
+//     // Lines and origin
+//     let mut lines = Vec::new();
+//     let radius = rfov.to_flt();
+//     let p0x: f64 = 0.5;
+//     let p0y: f64 = 0.5;
+
+//     // First FOV point delta from origin (pri/sec)
+//     let delta_i = octant.dpds_to_dxdy_flt(radius, 0.25);
+//     let pix = p0x + delta_i.x;
+//     let piy = p0y + delta_i.y;
+
+//     let line_i = Line::new(p0x, p0y, pix, piy);
+//     lines.push(line_i);
+
+//     // FOV lines between first and last, depending on Q-factor
+//     for n in 1..rfov.to_int() {
+//         let nf = n as f64;
+
+//         // Two FOV points per tile along edge
+//         let delta_n = octant.dpds_to_dxdy_flt(radius, nf - 0.25);
+//         let pnx = p0x + delta_n.x;
+//         let pny = p0y + delta_n.y;
+
+//         let line_n1 = Line::new(p0x, p0y, pnx, pny);
+//         lines.push(line_n1);
+
+//         let delta_n = octant.dpds_to_dxdy_flt(radius, nf + 0.25);
+//         let pnx = p0x + delta_n.x;
+//         let pny = p0y + delta_n.y;
+
+//         let line_n2 = Line::new(p0x, p0y, pnx, pny);
+//         lines.push(line_n2);
+//     }
+
+//     // Final FOV point delta from origin (pri/sec)
+//     let delta_f = octant.dpds_to_dxdy_flt(radius, radius - 0.25);
+//     let pfx = p0x + delta_f.x;
+//     let pfy = p0y + delta_f.y;
+
+//     let line_f = Line::new(p0x, p0y, pfx, pfy);
+//     lines.push(line_f);
+
+//     lines
+// }
+
+
+/// Generates FOV lines for the `body` of an FOV Node, same for all octants.
+///
+/// These lines are offset by `dpri`, `dsec` of each Node in the FOV octant, 
+/// and checked against FOV lines.
+/// 
+/// _Note:_ in this context, `Line.x` and `Line.y` refer to `pri` 
+/// `sec`, respectively.
+pub fn body_lines() -> (Line, Line) {
+    ( 
+        Line { x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, },
+        Line { x1: 0.0, y1: 0.0, x2: 1.0, y2: 0.0, }, 
+    )
+}
+
+/// Generates an FOV Node's North wall FOV line (`wall_n`) based on octant.
+/// 
+/// These lines are offset by `dpri`, `dsec` of each Node in the FOV octant, 
+/// and checked against FOV lines.
+/// 
+/// Octants (1 and 4), (2 and 3), (5 and 8), and (6 and 7) should have the 
+/// same values.
+/// 
+/// _Note:_ in this context, `Line.x` and `Line.y` refer to `pri` 
+/// `sec`, respectively.
+pub fn wall_n_line(octant: Octant) -> Line {
+    match octant {
+        Octant::O1 => Line { x1: 0.0, y1: 1.0, x2: 1.0, y2: 1.0, },
+        Octant::O2 => Line { x1: 1.0, y1: 0.0, x2: 1.0, y2: 1.0, },
+        Octant::O3 => Line { x1: 1.0, y1: 0.0, x2: 1.0, y2: 1.0, },
+        Octant::O4 => Line { x1: 0.0, y1: 1.0, x2: 1.0, y2: 1.0, },
+        Octant::O5 => Line { x1: 0.0, y1: 0.0, x2: 1.0, y2: 0.0, },
+        Octant::O6 => Line { x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, },
+        Octant::O7 => Line { x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, },
+        Octant::O8 => Line { x1: 0.0, y1: 0.0, x2: 1.0, y2: 0.0, },
+    }
+}
+
+/// Generates an FOV Node's West wall FOV line (`wall_w`) based on octant.
+///
+/// These lines are offset by `dpri`, `dsec` of each Node in the FOV octant, 
+/// and checked against FOV lines.
+/// 
+/// Octants (1 and 8), (2 and 7), (3 and 6), and (4 and 5) should have the 
+/// same values.
+/// 
+/// _Note:_ in this context, `Line.x` and `Line.y` refer to `pri` 
+/// `sec`, respectively.
+pub fn wall_w_line(octant: Octant) -> Line {
+    match octant {
+        Octant::O1 => Line { x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, },
+        Octant::O2 => Line { x1: 0.0, y1: 0.0, x2: 1.0, y2: 0.0, },
+        Octant::O3 => Line { x1: 0.0, y1: 1.0, x2: 1.0, y2: 1.0, },
+        Octant::O4 => Line { x1: 1.0, y1: 0.0, x2: 1.0, y2: 1.0, },
+        Octant::O5 => Line { x1: 1.0, y1: 0.0, x2: 1.0, y2: 1.0, },
+        Octant::O6 => Line { x1: 0.0, y1: 1.0, x2: 1.0, y2: 1.0, },
+        Octant::O7 => Line { x1: 0.0, y1: 0.0, x2: 1.0, y2: 0.0, },
+        Octant::O8 => Line { x1: 0.0, y1: 0.0, x2: 0.0, y2: 1.0, },
+    }
 }
 
 //  ########  ########   ######   ########
@@ -240,21 +381,46 @@ mod tests {
     #[test]
     fn fov_line_count() {
         let suite = [
-            get_fov_lines(FovRadius::R8, QFactor::Single, Octant::O1),
-            get_fov_lines(FovRadius::R8, QFactor::Double, Octant::O2),
-            get_fov_lines(FovRadius::R16, QFactor::Single, Octant::O3),
-            get_fov_lines(FovRadius::R16, QFactor::Double, Octant::O4),
-            get_fov_lines(FovRadius::R32, QFactor::Single, Octant::O5),
-            get_fov_lines(FovRadius::R32, QFactor::Double, Octant::O6),
-            get_fov_lines(FovRadius::R64, QFactor::Single, Octant::O7),
-            get_fov_lines(FovRadius::R64, QFactor::Double, Octant::O8),
-            get_fov_lines(FovRadius::R128, QFactor::Single, Octant::O1),
-            get_fov_lines(FovRadius::R128, QFactor::Double, Octant::O2),
+            get_fov_lines(FovRadius::R8, QFactor::Single),
+            get_fov_lines(FovRadius::R8, QFactor::Double),
+            get_fov_lines(FovRadius::R16, QFactor::Single),
+            get_fov_lines(FovRadius::R16, QFactor::Double),
+            get_fov_lines(FovRadius::R32, QFactor::Single),
+            get_fov_lines(FovRadius::R32, QFactor::Double),
+            get_fov_lines(FovRadius::R64, QFactor::Single),
+            get_fov_lines(FovRadius::R64, QFactor::Double),
+            get_fov_lines(FovRadius::R128, QFactor::Single),
+            get_fov_lines(FovRadius::R128, QFactor::Double),
         ];
         let actual: Vec<_> = suite.iter().map(|lines| lines.len()).collect();
 
         let expected = [8, 16, 16, 32, 32, 64, 64, 128, 128, 256];
 
         assert_eq!(actual, expected);
+    }
+
+    // FOV node line sanity check: lines in some octant pairs should be identical.
+    #[test]
+    fn fov_node_line_match() {
+        let north_pairs = [
+            (wall_n_line(Octant::O1), wall_n_line(Octant::O4)),
+            (wall_n_line(Octant::O2), wall_n_line(Octant::O3)),
+            (wall_n_line(Octant::O5), wall_n_line(Octant::O8)),
+            (wall_n_line(Octant::O6), wall_n_line(Octant::O7)),
+        ];
+        let west_pairs = [
+            (wall_w_line(Octant::O1), wall_w_line(Octant::O8)),
+            (wall_w_line(Octant::O2), wall_w_line(Octant::O7)),
+            (wall_w_line(Octant::O3), wall_w_line(Octant::O6)),
+            (wall_w_line(Octant::O4), wall_w_line(Octant::O5)),
+        ];
+        
+        for pair in north_pairs.iter() {
+            assert_eq!(pair.0, pair.1);
+        }
+
+        for pair in west_pairs.iter() {
+            assert_eq!(pair.0, pair.1);
+        }
     }
 }
