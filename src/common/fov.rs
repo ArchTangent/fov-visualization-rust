@@ -2,8 +2,6 @@
 
 use super::math::{Delta, Line, Point};
 
-// TODO: resolve proper number of FOV lines, equal to the rFOV
-
 /// FOV radius used in calculations.
 #[derive(Debug, Clone, Copy)]
 pub enum FovRadius {
@@ -38,6 +36,20 @@ impl FovRadius {
 }
 
 /// The eight primary subdivisions of an FOV map.
+/// 
+/// Visualized:
+/// ```text
+///  
+///    3 3 3  2 2 2   
+///  4   3 3  2 2   1
+///  4 4   3  2   1 1
+///  4 4 4      1 1 1
+///         +
+///  5 5 5      8 8 8
+///  5 5   6  7   8 8
+///  5   6 6  7 7   8    
+///    6 6 6  7 7 7  
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub enum Octant {
     /// Octant ENE of origin.
@@ -147,6 +159,26 @@ pub enum QFactor {
     Double,
 }
 
+/// A list of FOV lines.
+pub struct FovLines {
+    pub radius: FovRadius,
+    pub qfactor: QFactor,
+    inner: Vec<Line>,
+}
+
+impl FovLines {
+    pub fn new(rfov: FovRadius, qfactor: QFactor) -> Self {
+        Self {
+            radius: rfov,
+            qfactor,
+            inner: get_fov_lines(rfov, qfactor) 
+        }
+    }
+    pub fn iter(&self) -> std::slice::Iter<Line> {
+        self.inner.iter()
+    }
+}
+
 /// Returns a list of FOV lines with specified radius and Q-value.
 /// 
 /// FOV lines are defined in terms of `(pri, sec)` coordinates, as 
@@ -225,87 +257,6 @@ fn get_fov_lines_double(rfov: FovRadius) -> Vec<Line> {
 
     lines
 }
-
-
-// /// Returns a list of FOV lines with specified radius, octant, and Q-value.
-// pub fn get_fov_lines(rfov: FovRadius, qfactor: QFactor, octant: Octant) -> Vec<Line> {
-//     match qfactor {
-//         QFactor::Single => get_fov_lines_single(rfov, octant),
-//         QFactor::Double => get_fov_lines_double(rfov, octant),
-//     }
-// }
-
-// /// Returns a list of `Radius * Q-value` FOV lines.
-// fn get_fov_lines_single(rfov: FovRadius, octant: Octant) -> Vec<Line> {
-//     // Lines and origin
-//     let mut lines = Vec::new();
-//     let radius = rfov.to_flt();
-//     let p0x: f64 = 0.5;
-//     let p0y: f64 = 0.5;
-
-//     // FOV points with secondary delta just into neighboring tile
-//     for n in 0..rfov.to_int() {
-//         let ds = n as f64 + 0.51;
-
-//         // One FOV point per tile along edge
-//         let delta_n = octant.dpds_to_dxdy_flt(radius, ds);
-//         let pnx = p0x + delta_n.x;
-//         let pny = p0y + delta_n.y;
-
-//         let line_n = Line::new(p0x, p0y, pnx, pny);
-//         lines.push(line_n);
-//     }
-
-//     lines
-// }
-
-// /// Returns a list of `2 * Radius * Q-value` FOV lines.
-// fn get_fov_lines_double(rfov: FovRadius, octant: Octant) -> Vec<Line> {
-//     // Lines and origin
-//     let mut lines = Vec::new();
-//     let radius = rfov.to_flt();
-//     let p0x: f64 = 0.5;
-//     let p0y: f64 = 0.5;
-
-//     // First FOV point delta from origin (pri/sec)
-//     let delta_i = octant.dpds_to_dxdy_flt(radius, 0.25);
-//     let pix = p0x + delta_i.x;
-//     let piy = p0y + delta_i.y;
-
-//     let line_i = Line::new(p0x, p0y, pix, piy);
-//     lines.push(line_i);
-
-//     // FOV lines between first and last, depending on Q-factor
-//     for n in 1..rfov.to_int() {
-//         let nf = n as f64;
-
-//         // Two FOV points per tile along edge
-//         let delta_n = octant.dpds_to_dxdy_flt(radius, nf - 0.25);
-//         let pnx = p0x + delta_n.x;
-//         let pny = p0y + delta_n.y;
-
-//         let line_n1 = Line::new(p0x, p0y, pnx, pny);
-//         lines.push(line_n1);
-
-//         let delta_n = octant.dpds_to_dxdy_flt(radius, nf + 0.25);
-//         let pnx = p0x + delta_n.x;
-//         let pny = p0y + delta_n.y;
-
-//         let line_n2 = Line::new(p0x, p0y, pnx, pny);
-//         lines.push(line_n2);
-//     }
-
-//     // Final FOV point delta from origin (pri/sec)
-//     let delta_f = octant.dpds_to_dxdy_flt(radius, radius - 0.25);
-//     let pfx = p0x + delta_f.x;
-//     let pfy = p0y + delta_f.y;
-
-//     let line_f = Line::new(p0x, p0y, pfx, pfy);
-//     lines.push(line_f);
-
-//     lines
-// }
-
 
 /// Generates FOV lines for the `body` of an FOV Node, same for all octants.
 ///

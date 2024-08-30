@@ -1,5 +1,14 @@
 //! FOV Visualization - Rust (2D)
 //! 
+//! Key Ideas:
+//! - Field of View (FOV) is broken up into eight _octants_.
+//! - Octants are comprised of _FOV nodes_.
+//! - FOV nodes are used to relate _map tiles_ (and any _obstacles_ therein, such as walls) to _quantized_ bits
+//! - Quantized bits are used to determine tile visiblity
+//! - Quantized values range from `8` to `256` depending on max _FOV radius_ (`rFOV`).
+//! - FOV calculations depend on radius and _Q-value_ (number of quantized bits).
+//! - The larger the radius and Q-value, the longer the FOV calculation will take.
+//! 
 //! FOV Octants:
 //! 
 //! ```text
@@ -14,8 +23,6 @@
 //!  5   6 6  7 7   8    
 //!    6 6 6  7 7 7  
 //! ```
-//! 
-
 
 fn main() {
     println!("===== FOV VISUALIZATION - RUST (2D) =====\n");
@@ -43,7 +50,8 @@ fn main() {
     // --- Node Check ---
     use fov2d::simple::*;
 
-    let nodes_o1 = build_fov_octant_q8(rfov, octant);
+    let fov_lines = FovLines::new(rfov, qfactor);
+    let nodes_o1 = build_fov_octant_q8(rfov, &fov_lines);
 
     println!("nodes O1, Q8, rFOV = 8:");
     for node in nodes_o1.iter() {

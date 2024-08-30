@@ -2,7 +2,7 @@
 //! 
 //! Simple FOV uses one tile part as an obstruction: the tile `body`.
 
-use crate::{fov::body_lines, math::{Line, Vector}, FovRadius, Octant, QFactor};
+use crate::{fov::{body_lines, FovLines}, math::{Line, Vector}, FovRadius, Octant, QFactor};
 
 // TODO: Fov8 for rFOV up to 8, with Q8 and Q16
 // TODO: Fov16 for rFOV up to 16, with Q16 and Q32
@@ -22,7 +22,7 @@ pub struct FovNode8 {
 // TODO: set bits for node 0 based on octant
 // TODO: circular FOV culling 
 /// Builds a _simple_ FOV octant with Q-value of `8`.
-pub fn build_fov_octant_q8(rfov: FovRadius, octant: Octant) -> Vec<FovNode8> {
+pub fn build_fov_octant_q8(rfov: FovRadius, fov_lines: &FovLines) -> Vec<FovNode8> {
     // For Simple FOV, the first node `(0,0)` is always visible.
     let mut nodes = vec![FovNode8 { body: 0, dpri: 0, dsec: 0 }];
     let n_total = (0..rfov.to_int() as u32 + 2).sum::<u32>() - 1;
@@ -46,7 +46,7 @@ pub fn build_fov_octant_q8(rfov: FovRadius, octant: Octant) -> Vec<FovNode8> {
         let body_line_1 = body_base_1.shifted_by(dpri as f64, dsec as f64);
         let body_line_2 = body_base_2.shifted_by(dpri as f64, dsec as f64);
 
-        
+        // TODO: FOV Line comparison and bit setting
 
         nodes.push(FovNode8 { body: 0, dpri, dsec })
     }
