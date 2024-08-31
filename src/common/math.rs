@@ -267,6 +267,16 @@ impl FovRect {
     }
 }
 
+/// Convenience function to calculate distance between two `u8` values.
+pub fn dist_u8(a: u8, b: u8) -> f64 {
+    ((a as f64).powi(2) + (b as f64).powi(2)).sqrt()
+}
+
+/// Convenience function to calculate distance between two `u16` values.
+pub fn dist_u16(a: u16, b: u16) -> f64 {
+    ((a as f64).powi(2) + (b as f64).powi(2)).sqrt()
+}
+
 //  ########  ########   ######   ########
 //     ##     ##        ##           ##
 //     ##     ######     ######      ##

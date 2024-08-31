@@ -3,9 +3,8 @@
 use super::math::{Delta, Line, Point};
 
 /// FOV radius used in calculations.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FovRadius {
-    R8,
     R16,
     R32,
     R64,
@@ -16,7 +15,6 @@ impl FovRadius {
     /// Converts `FovRadius` into integer `u8` form.
     pub fn to_int(&self) -> u8 {
         match self {
-            FovRadius::R8 => 8,
             FovRadius::R16 => 16,
             FovRadius::R32 => 32,
             FovRadius::R64 => 64,
@@ -26,7 +24,6 @@ impl FovRadius {
     /// Converts `FovRadius` into float `u64` form.
     pub fn to_flt(&self) -> f64 {
         match self {
-            FovRadius::R8 => 8.0,
             FovRadius::R16 => 16.0,
             FovRadius::R32 => 32.0,
             FovRadius::R64 => 64.0,
@@ -99,18 +96,37 @@ impl Octant {
     /// Octant 8:   dx = (dpri *  1) + (dsec *  0)
     /// 			dy = (dpri *  0) + (dsec * -1)
     /// ```
-    pub fn dpds_to_dxdy(&self, dp: i32, ds: i32) -> Delta {
+    pub fn dpds_to_dxdy(&self, dpri: u16, dsec: u16) -> (i16, i16) {
+        let dp = dpri as i16;
+        let ds = dsec as i16;
+        
         match self {
-            Octant::O1 => Delta::new(dp, ds),
-            Octant::O2 => Delta::new(ds, dp),
-            Octant::O3 => Delta::new(-ds, dp),
-            Octant::O4 => Delta::new(-dp, ds),
-            Octant::O5 => Delta::new(-dp, -ds),
-            Octant::O6 => Delta::new(-ds, -dp),
-            Octant::O7 => Delta::new(ds, -dp),
-            Octant::O8 => Delta::new(dp, -ds),
+            Octant::O1 => (dp, ds),
+            Octant::O2 => (ds, dp),
+            Octant::O3 => (-ds, dp),
+            Octant::O4 => (-dp, ds),
+            Octant::O5 => (-dp, -ds),
+            Octant::O6 => (-ds, -dp),
+            Octant::O7 => (ds, -dp),
+            Octant::O8 => (dp, -ds),
         }
-    }
+    }    
+    // TODO: erase
+    // pub fn dpds_to_dxdy(&self, dpri: u8, dsec: u8) -> Delta {
+    //     let dp = dpri as i32;
+    //     let ds = dsec as i32;
+
+    //     match self {
+    //         Octant::O1 => Delta::new(dp, ds),
+    //         Octant::O2 => Delta::new(ds, dp),
+    //         Octant::O3 => Delta::new(-ds, dp),
+    //         Octant::O4 => Delta::new(-dp, ds),
+    //         Octant::O5 => Delta::new(-dp, -ds),
+    //         Octant::O6 => Delta::new(-ds, -dp),
+    //         Octant::O7 => Delta::new(ds, -dp),
+    //         Octant::O8 => Delta::new(dp, -ds),
+    //     }
+    // }
     /// Converts pri/sec `f64` deltas (`dp`, `ds`) to x/y deltas (`dx`, `dy`).
     pub fn dpds_to_dxdy_flt(&self, dp: f64, ds: f64) -> Point {
         match self {
@@ -153,7 +169,7 @@ impl Octant {
 }
 
 /// Quantizing factor, multiplied by FOV radius to set FOV granularity.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum QFactor {
     Single,
     Double,
@@ -332,8 +348,6 @@ mod tests {
     #[test]
     fn fov_line_count() {
         let suite = [
-            get_fov_lines(FovRadius::R8, QFactor::Single),
-            get_fov_lines(FovRadius::R8, QFactor::Double),
             get_fov_lines(FovRadius::R16, QFactor::Single),
             get_fov_lines(FovRadius::R16, QFactor::Double),
             get_fov_lines(FovRadius::R32, QFactor::Single),
@@ -345,7 +359,7 @@ mod tests {
         ];
         let actual: Vec<_> = suite.iter().map(|lines| lines.len()).collect();
 
-        let expected = [8, 16, 16, 32, 32, 64, 64, 128, 128, 256];
+        let expected = [16, 32, 32, 64, 64, 128, 128, 256];
 
         assert_eq!(actual, expected);
     }
