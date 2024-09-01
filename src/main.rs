@@ -72,5 +72,6 @@ fn main() {
     // let octant_q16 = FovOctant16::new(&nodes_q16, rfov, octant);
 
     let fov_map_q16 = FovMap16::new(rfov, qfactor, 0.50);
+    fov_map_q16.summarize();
 
 }

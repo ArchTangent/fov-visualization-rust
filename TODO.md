@@ -3,6 +3,7 @@
 ## Command Line (CLI)
 
 Usage:
+
 ```text
 fov2d.exe <SUBCOMMAND> <TYPE> <RADIUS> [OPTIONS]
 
@@ -24,12 +25,13 @@ SUBCOMMAND:
       16, 32, 64, or 128
     OPTIONS:
       --qbasic -q: use Q-value equal to radius. By default, Q-value is 2x radius.
-```  
+```
+
 ## Performance Tweaks
 
 - Try _multithreading_ (by octant?) and compare vs ST
   - `rayon`
-  - `crossbeam`  
+  - `crossbeam` (`utils` feature for `crossbeam::thread`)
 - Try _SIMD_ and compare vs scalar
   - `std::simd`
 
@@ -39,28 +41,24 @@ Generates FOV data that can be saved to file for easy reloading.
 
 ### Simple FOV
 
-Quantized bits for the following FOV radii:
-- 31:  Q32, Q64
-- 63:  Q64, Q128
-- 127: Q128, Q256
+- R/Q Pairings:
 
-- `FovData`: holds FovNodes
-- `FovNode`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`
-- `FovMap`:  holds MapTiles in a representation of the FOV-related aspects of a real game map
-- `MapTile`: holds obstructions that may be present in a tile
+  - R16: Q16, Q32
+  - R32: Q32, Q64
+  - R64: Q64, Q128
+  - R128: Q128, Q256
+
 - Benchmarks for various levels of randomly-placed obstructions
 
 ### Standard FOV
 
-Quantized bits for the following FOV radii:
-- 31:  Q32, Q64
-- 63:  Q64, Q128
-- 127: Q128, Q256
+- R/Q Pairings:
 
-- `FovData`: holds FovNodes
-- `FovNode`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`
-- `FovMap`:  holds MapTiles in a representation of the FOV-related aspects of a real game map
-- `MapTile`: holds obstructions that may be present in a tile
+  - R16: Q16, Q32
+  - R32: Q32, Q64
+  - R64: Q64, Q128
+  - R128: Q128, Q256
+
 - Benchmarks for various levels of randomly-placed obstructions
 
 ### Exploded FOV
@@ -68,13 +66,14 @@ Quantized bits for the following FOV radii:
 _Note: this requires a different format for FOV Nodes and the TileMap!_
 
 Quantized bits for the following FOV radii:
-- 31:  Q32, Q64
-- 63:  Q64, Q128
+
+- 31: Q32, Q64
+- 63: Q64, Q128
 - 127: Q128, Q256
 
 - `FovData`: holds FovNodes
 - `FovNode`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`
-- `FovMap`:  holds MapTiles in a representation of the FOV-related aspects of a real game map
+- `FovMap`: holds MapTiles in a representation of the FOV-related aspects of a real game map
 - `MapTile`: holds obstructions that may be present in a tile
 - Benchmarks for various levels of randomly-placed obstructions
 
@@ -82,7 +81,7 @@ Quantized bits for the following FOV radii:
 
 Calculates and displays FOV and LOS data.
 
-### Calculation
+### Calculations
 
 - `fov_calc` to gather visible tiles for each move
 - `los_calc` to gather visible tiles for each move
