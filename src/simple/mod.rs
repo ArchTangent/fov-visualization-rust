@@ -1,7 +1,6 @@
 //! Simple 2D FOV builders and calculations.
 
-pub mod builder;
-pub mod fovcalc;
-pub mod fovmap;
+pub mod fovcalc_q16;
+pub mod fovmap_q16;
 
-pub use builder::*;
+pub use fovmap_q16::*;

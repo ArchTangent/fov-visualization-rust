@@ -12,7 +12,7 @@ SUBCOMMAND:
       simple
       standard
     RADIUS:
-      32, 64, or 128
+      16, 32, 64, or 128
     OPTIONS:
       --qbasic -q: use Q-value equal to radius. By default, Q-value is 2x radius.
 
@@ -21,20 +21,21 @@ SUBCOMMAND:
       simple
       standard
     RADIUS:
-      32, 64, or 128
+      16, 32, 64, or 128
     OPTIONS:
       --qbasic -q: use Q-value equal to radius. By default, Q-value is 2x radius.
 ```  
+## Performance Tweaks
+
+- Try _multithreading_ (by octant?) and compare vs ST
+  - `rayon`
+  - `crossbeam`  
+- Try _SIMD_ and compare vs scalar
+  - `std::simd`
 
 ## FOV Generator
 
 Generates FOV data that can be saved to file for easy reloading.
-
-### General
-
-- Geometry objects: 2D lines, rays, rects, intersections
-- Make use of _SIMD_ to maximize performance
-  - Compare vs scalar
 
 ### Simple FOV
 

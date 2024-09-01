@@ -2,6 +2,20 @@
 
 use super::math::{Delta, Line, Point};
 
+/// Data for a visible tile and its subparts.
+/// 
+/// Subparts include:
+/// - `body`: the main tile body.
+/// - `wall_n`: the north wall (`Standard` calc only).
+/// - `wall_w`: the west wall (`Standard` calc only).
+#[derive(Debug)]
+pub struct VisibleTile {
+    id: usize,
+    body: bool,
+    wall_n: bool,
+    wall_w: bool,
+}
+
 /// FOV radius used in calculations.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FovRadius {
@@ -183,6 +197,7 @@ pub struct FovLines {
 }
 
 impl FovLines {
+    /// Creates a new `FovLines` instance.
     pub fn new(rfov: FovRadius, qfactor: QFactor) -> Self {
         Self {
             radius: rfov,
@@ -190,8 +205,13 @@ impl FovLines {
             inner: get_fov_lines(rfov, qfactor) 
         }
     }
+    /// Returns an iterator over the struct's FOV lines.
     pub fn iter(&self) -> std::slice::Iter<Line> {
         self.inner.iter()
+    }
+    /// Returns the number of FOV Nodes in the struct.
+    pub fn len(&self) -> usize {
+        self.inner.len()
     }
 }
 
