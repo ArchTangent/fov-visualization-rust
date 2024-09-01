@@ -55,7 +55,7 @@ fn main() {
     use fov2d::simple::*;
 
     let fov_lines = FovLines::new(rfov, qfactor);
-    let nodes_o1 = build_fov_octant_q16(rfov, &fov_lines, 0.5);
+    let nodes_o1 = build_fov_nodes_q16(rfov, &fov_lines, 0.5);
 
     println!("nodes O1, Q8, rFOV = 8:");
     for node in nodes_o1.iter() {
@@ -64,8 +64,11 @@ fn main() {
     println!("{} nodes: in total", nodes_o1.len());
 
     // --- Octant Check --- //
-    let octant_q16 = build_fov_octant_q16(rfov, &fov_lines, 0.5);
-    for fov_node in octant_q16.iter() {
+    let nodes_q16 = build_fov_nodes_q16(rfov, &fov_lines, 0.5);
+    for fov_node in nodes_q16.iter() {
         println!("{fov_node:?}");
     }
+
+    let octant_q16 = FovOctant16::new(&nodes_q16, rfov, octant);
+
 }
