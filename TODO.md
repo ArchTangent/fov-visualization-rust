@@ -73,7 +73,7 @@ Quantized bits for the following FOV radii:
 
 - `FovData`: holds FovNodes
 - `FovNode`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`
-- `FovMap`: holds MapTiles in a representation of the FOV-related aspects of a real game map
+- `FovSet`: holds MapTiles in a representation of the FOV-related aspects of a real game map
 - `MapTile`: holds obstructions that may be present in a tile
 - Benchmarks for various levels of randomly-placed obstructions
 

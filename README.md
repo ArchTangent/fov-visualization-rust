@@ -5,8 +5,8 @@
 ## Key Types
 
 Key types include:
-- `FovData`: holds one or more FOV Maps.
-- `FovMap`: holds eight FOV octants.
+- `FovData`: holds one or more FOV Sets.
+- `FovSet`: holds eight FOV octants.
 - `FovOctant`:  holds a list of FOV nodes.
 - `FovNode`: holds quantized FOV bits for tile `visibility` and obstruction `blockers`.
 - `TileMap`: holds in-game tiles.

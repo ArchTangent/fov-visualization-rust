@@ -1,13 +1,13 @@
 //! Simple FOV Maps for FOV Visualization - Rust (2D).
 //!
 //! Notes:
-//! - The `FovData` struct contains one or more `FovMap` structs, each of which contains eight `FovOctant`s of `FovNode`s.
+//! - The `FovData` struct contains one or more `FovSet` structs, each of which contains eight `FovOctant`s of `FovNode`s.
 //! - Simple FOV uses one tile part as an obstruction: the tile `body`.
 //!
-//! Building an FO Map:
+//! Building an FOV Set:
 //! - Create a list of FOV Nodes (`Vec<FovNode>`), same for each octant.
 //! - Create 8 FOV octant (`FovOctant`) instances from FOV nodes.
-//! - Create an FOV map (`FovMap`) from the 8 octants.
+//! - Create an FOV set (`FovSet`) from the 8 octants.
 
 use crate::{
     fov::{body_lines, FovLines},
@@ -16,7 +16,7 @@ use crate::{
 };
 
 /// FOV map of eight FOV octants, each comprised of 16-bit FOV nodes.
-pub struct FovMap16 {
+pub struct FovSet16 {
     rfov: FovRadius,
     capacity: usize,
     octant_1: FovOctant16,
@@ -29,14 +29,14 @@ pub struct FovMap16 {
     octant_8: FovOctant16,
 }
 
-impl FovMap16 {
-    /// Creates a new _Simple_ `FovMap` with Q-value `16`.
+impl FovSet16 {
+    /// Creates a new _Simple_ `FovSet` with Q-value `16`.
     ///
     /// Note: `circ_adj` is the circular culling adjustment used to define FOV shape.
     pub fn new(rfov: FovRadius, qfactor: QFactor, circ_adj: f64) -> Self {
-        println!("[FovMap16] building FOV map...");
-        assert!(rfov == FovRadius::R16, "FovMap16 requires FOV radius of 16!");
-        assert!(qfactor == QFactor::Single, "FovMap16 requires Q-Factor of 1!");
+        println!("[FovSet16] building FOV map...");
+        assert!(rfov == FovRadius::R16, "FovSet16 requires FOV radius of 16!");
+        assert!(qfactor == QFactor::Single, "FovSet16 requires Q-Factor of 1!");
 
         let fov_lines = FovLines::new(rfov, qfactor);
         let nodes = build_fov_nodes_q16(rfov, &fov_lines, circ_adj);
@@ -55,9 +55,9 @@ impl FovMap16 {
             octant_8: FovOctant16::new(&nodes, rfov),
         }
     }
-    /// Prints a summary of `FovMap` data.
+    /// Prints a summary of `FovSet` data.
     pub fn summarize(&self) {
-        println!("[FovMap16] Summary:");
+        println!("[FovSet16] Summary:");
         println!("  radius:    {}", self.rfov.to_int());
         println!("  octant 1:  {} nodes", self.octant_1.len());
         println!("  octant 2:  {} nodes", self.octant_2.len());
