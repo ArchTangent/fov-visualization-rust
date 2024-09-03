@@ -74,4 +74,8 @@ fn main() {
     let fov_map_q16 = FovMap16::new(rfov, qfactor, 0.50);
     fov_map_q16.summarize();
 
+    // TODO: redo octant ordering with Y=0 at top of screen?
+    println!("size of FovMap16: {}", size_of_val(&fov_map_q16));
+    println!("size of FovOctant6: {}", size_of::<FovOctant16>());
+
 }

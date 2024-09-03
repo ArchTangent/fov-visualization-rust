@@ -1,7 +1,6 @@
 //! Simple FOV calculation for FOV Visualization - Rust (2D).
 //!
-//! For _Simple_ FOV, only the `body` is visible. _Standard_ FOV, in contrast, determines
-//! visibility for `body`, `wall_n`, and `wall_w` subparts.
+//! _Simple_ FOV determines visiblity for the tile `body` subpart only.
 
 use crate::{fov::VisibleTile, FovRadius, Octant, QFactor};
 use super::FovMap16;

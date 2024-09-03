@@ -58,16 +58,18 @@ impl FovMap16 {
     /// Prints a summary of `FovMap` data.
     pub fn summarize(&self) {
         println!("[FovMap16] Summary:");
-        println!("  radius:   {}", self.rfov.to_int());
-        println!("  octant 1: {} nodes", self.octant_1.len());
-        println!("  octant 2: {} nodes", self.octant_2.len());
-        println!("  octant 3: {} nodes", self.octant_3.len());
-        println!("  octant 4: {} nodes", self.octant_4.len());
-        println!("  octant 5: {} nodes", self.octant_5.len());
-        println!("  octant 6: {} nodes", self.octant_6.len());
-        println!("  octant 7: {} nodes", self.octant_7.len());
-        println!("  octant 8: {} nodes", self.octant_8.len());
-        println!("  total:    {} nodes", self.capacity);
+        println!("  radius:    {}", self.rfov.to_int());
+        println!("  octant 1:  {} nodes", self.octant_1.len());
+        println!("  octant 2:  {} nodes", self.octant_2.len());
+        println!("  octant 3:  {} nodes", self.octant_3.len());
+        println!("  octant 4:  {} nodes", self.octant_4.len());
+        println!("  octant 5:  {} nodes", self.octant_5.len());
+        println!("  octant 6:  {} nodes", self.octant_6.len());
+        println!("  octant 7:  {} nodes", self.octant_7.len());
+        println!("  octant 8:  {} nodes", self.octant_8.len());
+        println!("  total:     {} nodes", self.capacity);
+        println!("  size:      {} bytes", size_of::<Self>());
+        println!("  size mem:  {} bytes", self.capacity * size_of::<FovNode16>());
     }
     /// Returns the maxiumum number of FOV nodes in the FOV map.
     pub fn capacity(&self) -> usize {
